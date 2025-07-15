@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Movie;
+use App\Models\Actor;
 use Illuminate\Http\Request;
 use App\Http\Resources\MovieResource;
 
@@ -14,7 +15,7 @@ class MovieController extends Controller
      */
     public function index()
     {
-        return MovieResource::collection(Movie::all());
+        return MovieResource::collection(Movie::with(['genre', 'actors', 'pictures'])->get());
     }
 
     /**
@@ -22,14 +23,38 @@ class MovieController extends Controller
      */
     public function store(Request $request)
     {
-        $movie = Movie::create($request->validate([
+        $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'genre' => 'required|string|max:255',
-            'subgenre' => 'nullable|string|max:255',
-            'cast' => 'nullable|string',
-            'pictures' => 'nullable|json',
-        ]));
+            'genre_id' => 'required|exists:genres,id',
+            'actors' => 'nullable|array',
+            'actors.*' => 'string|max:255',
+            'pictures' => 'nullable|array',
+            'pictures.*' => 'string|max:255',
+        ]);
+
+        $movie = Movie::create([
+            'title' => $validated['title'],
+            'description' => $validated['description'] ?? null,
+            'genre_id' => $validated['genre_id'],
+        ]);
+
+        if (isset($validated['actors'])) {
+            $actorIds = [];
+            foreach ($validated['actors'] as $name) {
+                $actor = Actor::firstOrCreate(['name' => $name]);
+                $actorIds[] = $actor->id;
+            }
+            $movie->actors()->sync($actorIds);
+        }
+
+        if (isset($validated['pictures'])) {
+            foreach ($validated['pictures'] as $url) {
+                $movie->pictures()->create(['url' => $url]);
+            }
+        }
+
+        $movie->load(['genre', 'actors', 'pictures']);
 
         return new MovieResource($movie);
     }
@@ -39,6 +64,8 @@ class MovieController extends Controller
      */
     public function show(Movie $movie)
     {
+        $movie->load(['genre', 'actors', 'pictures']);
+
         return new MovieResource($movie);
     }
 
@@ -47,14 +74,36 @@ class MovieController extends Controller
      */
     public function update(Request $request, Movie $movie)
     {
-        $movie->update($request->validate([
+        $validated = $request->validate([
             'title' => 'sometimes|required|string|max:255',
             'description' => 'nullable|string',
-            'genre' => 'sometimes|required|string|max:255',
-            'subgenre' => 'nullable|string|max:255',
-            'cast' => 'nullable|string',
-            'pictures' => 'nullable|json',
-        ]));
+            'genre_id' => 'sometimes|required|exists:genres,id',
+            'actors' => 'nullable|array',
+            'actors.*' => 'string|max:255',
+            'pictures' => 'nullable|array',
+            'pictures.*' => 'string|max:255',
+        ]);
+
+        $movie->fill(array_intersect_key($validated, array_flip(['title', 'description', 'genre_id'])));
+        $movie->save();
+
+        if (isset($validated['actors'])) {
+            $actorIds = [];
+            foreach ($validated['actors'] as $name) {
+                $actor = Actor::firstOrCreate(['name' => $name]);
+                $actorIds[] = $actor->id;
+            }
+            $movie->actors()->sync($actorIds);
+        }
+
+        if (isset($validated['pictures'])) {
+            $movie->pictures()->delete();
+            foreach ($validated['pictures'] as $url) {
+                $movie->pictures()->create(['url' => $url]);
+            }
+        }
+
+        $movie->load(['genre', 'actors', 'pictures']);
 
         return new MovieResource($movie);
     }
