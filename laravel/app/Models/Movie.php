@@ -22,7 +22,7 @@ class Movie extends Model
 
     public function actors()
     {
-        return $this->belongsToMany(Actor::class);
+        return $this->belongsToMany(Actor::class, 'movie_actor');
     }
 
     public function pictures()
