@@ -33,6 +33,12 @@
         <x-input-error :messages="$errors->get('pictures')" class="mt-2" />
     </div>
 
+    <div>
+        <x-input-label for="picture_files" :value="__('Upload Pictures')" />
+        <input id="picture_files" name="picture_files[]" type="file" multiple class="mt-1 block w-full" />
+        <x-input-error :messages="$errors->get('picture_files.*')" class="mt-2" />
+    </div>
+
     <div class="flex items-center gap-4">
         <x-primary-button>{{ __('Save') }}</x-primary-button>
         <a href="{{ route('movies.index') }}" class="text-sm text-gray-600 hover:text-gray-900">{{ __('Cancel') }}</a>
