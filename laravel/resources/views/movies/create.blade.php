@@ -8,7 +8,7 @@
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white p-4 shadow sm:rounded-lg">
-                <form method="POST" action="{{ route('movies.store') }}">
+                <form method="POST" action="{{ route('movies.store') }}" enctype="multipart/form-data">
                     @csrf
                     @include('movies.form', ['movie' => new App\Models\Movie()])
                 </form>

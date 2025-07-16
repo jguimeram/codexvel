@@ -7,6 +7,7 @@ use App\Models\Movie;
 use App\Models\Actor;
 use Illuminate\Http\Request;
 use App\Http\Resources\MovieResource;
+use Illuminate\Support\Facades\Storage;
 
 class MovieController extends Controller
 {
@@ -31,6 +32,8 @@ class MovieController extends Controller
             'actors.*' => 'string|max:255',
             'pictures' => 'nullable|array',
             'pictures.*' => 'string|max:255',
+            'picture_files' => 'nullable|array',
+            'picture_files.*' => 'image',
         ]);
 
         $movie = Movie::create([
@@ -51,6 +54,13 @@ class MovieController extends Controller
         if (isset($validated['pictures'])) {
             foreach ($validated['pictures'] as $url) {
                 $movie->pictures()->create(['url' => $url]);
+            }
+        }
+
+        if ($request->hasFile('picture_files')) {
+            foreach ($request->file('picture_files') as $file) {
+                $path = $file->store('pictures', 'public');
+                $movie->pictures()->create(['url' => Storage::url($path)]);
             }
         }
 
@@ -82,6 +92,8 @@ class MovieController extends Controller
             'actors.*' => 'string|max:255',
             'pictures' => 'nullable|array',
             'pictures.*' => 'string|max:255',
+            'picture_files' => 'nullable|array',
+            'picture_files.*' => 'image',
         ]);
 
         $movie->fill(array_intersect_key($validated, array_flip(['title', 'description', 'genre_id'])));
@@ -96,10 +108,20 @@ class MovieController extends Controller
             $movie->actors()->sync($actorIds);
         }
 
-        if (isset($validated['pictures'])) {
+        if (isset($validated['pictures']) || $request->hasFile('picture_files')) {
             $movie->pictures()->delete();
-            foreach ($validated['pictures'] as $url) {
-                $movie->pictures()->create(['url' => $url]);
+
+            if (isset($validated['pictures'])) {
+                foreach ($validated['pictures'] as $url) {
+                    $movie->pictures()->create(['url' => $url]);
+                }
+            }
+
+            if ($request->hasFile('picture_files')) {
+                foreach ($request->file('picture_files') as $file) {
+                    $path = $file->store('pictures', 'public');
+                    $movie->pictures()->create(['url' => Storage::url($path)]);
+                }
             }
         }
 

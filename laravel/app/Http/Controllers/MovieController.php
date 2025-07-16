@@ -7,6 +7,7 @@ use App\Models\Genre;
 use App\Models\Actor;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class MovieController extends Controller
@@ -31,6 +32,8 @@ class MovieController extends Controller
             'genre_id' => 'required|exists:genres,id',
             'actors' => 'nullable|string',
             'pictures' => 'nullable|string',
+            'picture_files' => 'nullable|array',
+            'picture_files.*' => 'image',
         ]);
 
         $movie = Movie::create([
@@ -40,7 +43,7 @@ class MovieController extends Controller
         ]);
 
         $this->syncActors($movie, $validated['actors'] ?? '');
-        $this->syncPictures($movie, $validated['pictures'] ?? '');
+        $this->syncPictures($movie, $validated['pictures'] ?? '', $request->file('picture_files', []));
 
         return redirect()->route('movies.index')->with('success', 'Movie created.');
     }
@@ -60,6 +63,8 @@ class MovieController extends Controller
             'genre_id' => 'required|exists:genres,id',
             'actors' => 'nullable|string',
             'pictures' => 'nullable|string',
+            'picture_files' => 'nullable|array',
+            'picture_files.*' => 'image',
         ]);
 
         $movie->update([
@@ -69,7 +74,7 @@ class MovieController extends Controller
         ]);
 
         $this->syncActors($movie, $validated['actors'] ?? '');
-        $this->syncPictures($movie, $validated['pictures'] ?? '');
+        $this->syncPictures($movie, $validated['pictures'] ?? '', $request->file('picture_files', []));
 
         return redirect()->route('movies.index')->with('success', 'Movie updated.');
     }
@@ -90,9 +95,15 @@ class MovieController extends Controller
         $movie->actors()->sync($ids);
     }
 
-    private function syncPictures(Movie $movie, string $pictures): void
+    private function syncPictures(Movie $movie, string $pictures, array $files = []): void
     {
         $urls = array_filter(array_map('trim', explode(',', $pictures)));
+
+        foreach ($files as $file) {
+            $path = $file->store('pictures', 'public');
+            $urls[] = \Storage::url($path);
+        }
+
         $movie->pictures()->delete();
         foreach ($urls as $url) {
             $movie->pictures()->create(['url' => $url]);
