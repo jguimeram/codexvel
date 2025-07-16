@@ -16,6 +16,8 @@ class RegisteredUserController extends Controller
 {
     /**
      * Display the registration view.
+     *
+     * @return View Registration form view
      */
     public function create(): View
     {
@@ -24,6 +26,9 @@ class RegisteredUserController extends Controller
 
     /**
      * Handle an incoming registration request.
+     *
+     * @param  Request  $request Current HTTP request
+     * @return RedirectResponse Redirect after successful registration
      *
      * @throws \Illuminate\Validation\ValidationException
      */

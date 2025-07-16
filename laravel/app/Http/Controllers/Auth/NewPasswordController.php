@@ -17,6 +17,9 @@ class NewPasswordController extends Controller
 {
     /**
      * Display the password reset view.
+     *
+     * @param  Request  $request Current HTTP request
+     * @return View Password reset form
      */
     public function create(Request $request): View
     {
@@ -25,6 +28,9 @@ class NewPasswordController extends Controller
 
     /**
      * Handle an incoming new password request.
+     *
+     * @param  Request  $request Current HTTP request
+     * @return RedirectResponse Redirect on success or back on failure
      *
      * @throws \Illuminate\Validation\ValidationException
      */
