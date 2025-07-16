@@ -10,6 +10,9 @@ class EmailVerificationNotificationController extends Controller
 {
     /**
      * Send a new email verification notification.
+     *
+     * @param  Request  $request Current HTTP request
+     * @return RedirectResponse Redirect back with status
      */
     public function store(Request $request): RedirectResponse
     {

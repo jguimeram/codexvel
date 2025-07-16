@@ -13,6 +13,9 @@ class ProfileController extends Controller
 {
     /**
      * Display the user's profile form.
+     *
+     * @param  Request  $request Current HTTP request
+     * @return View Profile edit form
      */
     public function edit(Request $request): View
     {
@@ -23,6 +26,9 @@ class ProfileController extends Controller
 
     /**
      * Update the user's profile information.
+     *
+     * @param  ProfileUpdateRequest  $request Validated profile data
+     * @return RedirectResponse Redirect back to profile form
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
@@ -39,6 +45,9 @@ class ProfileController extends Controller
 
     /**
      * Delete the user's account.
+     *
+     * @param  Request  $request Current HTTP request
+     * @return RedirectResponse Redirect to home page
      */
     public function destroy(Request $request): RedirectResponse
     {

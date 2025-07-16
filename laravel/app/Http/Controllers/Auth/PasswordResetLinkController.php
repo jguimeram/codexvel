@@ -12,6 +12,8 @@ class PasswordResetLinkController extends Controller
 {
     /**
      * Display the password reset link request view.
+     *
+     * @return View Password reset link form
      */
     public function create(): View
     {
@@ -20,6 +22,9 @@ class PasswordResetLinkController extends Controller
 
     /**
      * Handle an incoming password reset link request.
+     *
+     * @param  Request  $request Current HTTP request
+     * @return RedirectResponse Redirect back with status
      *
      * @throws \Illuminate\Validation\ValidationException
      */

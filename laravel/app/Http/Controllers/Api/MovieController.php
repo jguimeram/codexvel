@@ -12,7 +12,9 @@ use Illuminate\Support\Facades\Storage;
 class MovieController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Return all movies with related data.
+     *
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
     public function index()
     {
@@ -20,7 +22,10 @@ class MovieController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Create a new movie record from the provided data.
+     *
+     * @param  Request  $request Incoming HTTP request
+     * @return MovieResource Newly created movie resource
      */
     public function store(Request $request)
     {
@@ -70,7 +75,10 @@ class MovieController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * Display the specified movie with relations.
+     *
+     * @param  Movie  $movie Movie instance from route model binding
+     * @return MovieResource Movie resource representation
      */
     public function show(Movie $movie)
     {
@@ -80,7 +88,11 @@ class MovieController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update an existing movie.
+     *
+     * @param  Request  $request Incoming HTTP request
+     * @param  Movie  $movie Movie instance from route model binding
+     * @return MovieResource Updated movie resource
      */
     public function update(Request $request, Movie $movie)
     {
@@ -131,7 +143,10 @@ class MovieController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Delete the specified movie record.
+     *
+     * @param  Movie  $movie Movie instance from route model binding
+     * @return \Illuminate\Http\Response
      */
     public function destroy(Movie $movie)
     {
